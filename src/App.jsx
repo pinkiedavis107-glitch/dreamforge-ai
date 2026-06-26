@@ -47,12 +47,19 @@ const Navbar = ({ scrolled }) => (
           <img src="/assets/logo.svg" alt="DreamForge AI" className="h-7 md:h-8" />
         </a>
         <div className="hidden md:flex items-center gap-8">
-          {['Features', 'Workflow', 'Premium', 'Pricing'].map(item => (
-            <a key={item} href={`#${item.toLowerCase()}`}
-              className="text-sm font-medium text-white/70 hover:text-gold-400 transition-colors">
-              {item}
-            </a>
-          ))}
+          {['Features', 'Workflow', 'Premium', 'Studio', 'Pricing'].map(item => {
+            const href = item === 'Studio' ? '#studio' : `#${item.toLowerCase()}`;
+            return (
+              <a key={item} href={href}
+                className={`text-sm font-medium transition-colors ${
+                  item === 'Studio' 
+                    ? 'text-gold-400 hover:text-gold-300' 
+                    : 'text-white/70 hover:text-gold-400'
+                }`}>
+                {item === 'Studio' ? '🎬 Studio' : item}
+              </a>
+            );
+          })}
           <button className="px-5 py-2.5 bg-gradient-to-r from-gold-400 to-gold-500 text-cinema-950 text-sm font-semibold rounded-full hover:from-gold-300 hover:to-gold-400 transition-all duration-300 shadow-lg shadow-gold-500/25">
             Get Early Access
           </button>
@@ -73,12 +80,17 @@ const MobileMenu = () => {
       {open && (
         <div className="fixed inset-0 top-16 bg-cinema-950/98 backdrop-blur-xl z-40 md:hidden">
           <div className="flex flex-col items-center gap-6 pt-12">
-            {['Features', 'Workflow', 'Premium', 'Pricing'].map(item => (
-              <a key={item} href={`#${item.toLowerCase()}`} onClick={() => setOpen(false)}
-                className="text-lg text-white/80 hover:text-gold-400 transition-colors">
-                {item}
-              </a>
-            ))}
+            {['Features', 'Workflow', 'Premium', 'Studio', 'Pricing'].map(item => {
+              const href = item === 'Studio' ? '#studio' : `#${item.toLowerCase()}`;
+              return (
+                <a key={item} href={href} onClick={() => setOpen(false)}
+                  className={`text-lg transition-colors ${
+                    item === 'Studio' ? 'text-gold-400 hover:text-gold-300' : 'text-white/80 hover:text-gold-400'
+                  }`}>
+                  {item === 'Studio' ? '🎬 Studio' : item}
+                </a>
+              );
+            })}
             <button className="mt-4 px-8 py-3 bg-gradient-to-r from-gold-400 to-gold-500 text-cinema-950 font-semibold rounded-full">
               Get Early Access
             </button>
@@ -123,9 +135,9 @@ const Hero = () => (
       </p>
 
       <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
-        <button onClick={() => document.getElementById('features')?.scrollIntoView({ behavior: 'smooth' })}
+        <button onClick={() => window.location.hash = '#studio'}
           className="group px-8 py-4 bg-gradient-to-r from-gold-400 to-gold-500 text-cinema-950 text-base font-bold rounded-full hover:from-gold-300 hover:to-gold-400 transition-all duration-300 shadow-2xl shadow-gold-500/30 flex items-center gap-2">
-          <Sparkles className="w-5 h-5" />
+          <Music className="w-5 h-5" />
           Start Creating
           <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
         </button>
@@ -545,9 +557,24 @@ const Footer = () => (
   </footer>
 );
 
+// ── Studio Page ──
+import StudioPage from './pages/StudioPage.jsx';
+
+// ── Simple Hash Router ──
+function useHashRoute() {
+  const [hash, setHash] = useState(window.location.hash || '#home');
+  useEffect(() => {
+    const onHashChange = () => setHash(window.location.hash || '#home');
+    window.addEventListener('hashchange', onHashChange);
+    return () => window.removeEventListener('hashchange', onHashChange);
+  }, []);
+  return hash;
+}
+
 // ── App ──
 export default function App() {
   const [scrolled, setScrolled] = useState(false);
+  const hash = useHashRoute();
 
   useEffect(() => {
     const onScroll = () => setScrolled(window.scrollY > 20);
@@ -555,6 +582,12 @@ export default function App() {
     return () => window.removeEventListener('scroll', onScroll);
   }, []);
 
+  // Studio route
+  if (hash === '#studio') {
+    return <StudioPage />;
+  }
+
+  // Landing page (default)
   return (
     <div className="bg-cinema-950 text-white font-body antialiased selection:bg-gold-500/30 selection:text-white">
       <Navbar scrolled={scrolled} />
